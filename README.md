@@ -1,6 +1,6 @@
 # CMP_SCI 2750 Project 3
 
-Math and tests.
+Simple calculator program and unit tests.
 
 ## Compiling
 
