@@ -1,17 +1,12 @@
 #include "./calc.h"
-void getline(char* buf, size_t bufsiz){
-    int c;
-    while( (c=fgetc(stdin))!=EOF){
-      buf[ind]
-    }
 
-}
 void calculate() {
 #define BUF_SIZ 512
   char buf[BUF_SIZ];
 
   while (1) {
-    printf("Please specify a command and 2 numbers, separated by spaces:\n")
+    printf("\n");
+    printf("Please specify a command and 2 numbers, separated by spaces:\n");
     printf("  add num1 num2\n");
     printf("  multiply num1 num2\n");
     printf("  divide num1 num2\n");
@@ -19,13 +14,13 @@ void calculate() {
     printf("  modulus num1 num2\n");
     printf(">");
 
-    memset(buf, 0, BUF_SIZ);
-    if (scanf("%s", buf) != 1) {
-      fprintf(stderr, "Invalid input.");
+    double a = -1, b = -1, res = -1;
+    Command cmd = CMD_INVALID;
+    if (getLineAndParse(buf, BUF_SIZ, &cmd, &a, &b) != 0) {
+      printf("Please check the input and try again.\n");
     }
     else {
-      double a = -1, b = -1, res = -1;
-      Command cmd = getCommand(buf);
+      bool success = true;
 
       if (cmd == CMD_ADD) {
         res = add(a, b);
@@ -42,61 +37,108 @@ void calculate() {
       else if (cmd == CMD_MODULUS) {
         res = modulus(a, b);
       }
-      printf("%f\n", res);
+      else {
+        success = false;
+      }
+
+      if (success) {
+        printf("%f\n", res);
+      }
     }
   }
 }
-
-Command getCommand(char* arg) {
+int getCommand(char* arg, Command* out) {
   if (!strcmp(arg, "-t")) {
-    return CMD_TEST;
+    *out = CMD_TEST;
   }
   else if (!strcmp(arg, "-h")) {
-    return CMD_HELP;
+    *out = CMD_HELP;
   }
   else if (!strcmp(arg, "mul")) {
-    return CMD_MULTIPLY;
+    *out = CMD_MULTIPLY;
   }
   else if (!strcmp(arg, "div")) {
-    return CMD_DIVIDE;
+    *out = CMD_DIVIDE;
   }
   else if (!strcmp(arg, "add")) {
-    return CMD_ADD;
+    *out = CMD_ADD;
   }
   else if (!strcmp(arg, "sub")) {
-    return CMD_SUBTRACT;
+    *out = CMD_SUBTRACT;
   }
   else if (!strcmp(arg, "mod")) {
-    return CMD_MODULUS;
+    *out = CMD_MODULUS;
   }
   else {
-    return CMD_INVALID;
+    *out = CMD_INVALID;
+    return 1;
   }
+  return 0;
 }
-double getDoubleOrDie(char* c) {
-  double x = strtod(c, NULL);
-  if (x == 0 && errno == ERANGE) {
+int getDouble(char* c, double* out) {
+  char* error_question_mark = 1;
+  *out = strtod(c, &error_question_mark);
+  if (*out == 0 && error_question_mark == c) {
     fprintf(stderr, "Error: invalid number %s.\n", c);
-    exit(1);
+    return 1;
   }
-  return x;
+  return 0;
 }
-void getValidNumbers(size_t argc, char** argv, double* out_a, double* out_b) {
-  validateArgumentIndexes(argc, argv, 3);
-  if (argc < 4) {
-    fprintf(stderr, "We need 4 arguments.\n");
-    exit(1);
+int getLineAndParse(char* raw_buf, int raw_bufsiz, Command* cmd, double* a, double* b) {
+#define BUF_SIZ 512
+  char str_cmd[BUF_SIZ];
+  char str_a[BUF_SIZ];
+  char str_b[BUF_SIZ];
+  char* arg_buf = 0;
+  int arg_buf_idx = 0;
+
+  memset(str_cmd, 0, BUF_SIZ);
+  memset(str_a, 0, BUF_SIZ);
+  memset(str_b, 0, BUF_SIZ);
+
+  memset(raw_buf, 0, raw_bufsiz);
+  fgets(raw_buf, raw_bufsiz, stdin);
+
+  arg_buf = str_cmd;
+  for (int i = 0; i < raw_bufsiz; i++) {
+    int c = raw_buf[i];
+    if (c == ' ' || c == 0 || c == '\n' || c == '\r') {
+      if (arg_buf == str_cmd) {
+        arg_buf = str_a;
+        arg_buf_idx = 0;
+      }
+      else if (arg_buf == str_a) {
+        arg_buf = str_b;
+        arg_buf_idx = 0;
+      }
+      else if (arg_buf == str_b) {
+        break;
+      }
+    }
+    else {
+      arg_buf[arg_buf_idx++] = c;
+    }
   }
-  if (out_a == NULL) {
-    fprintf(stderr, "Error: first number must be specified.\n");
-    exit(1);
+
+  if ((strlen(str_cmd) == 0) || (strlen(str_a) == 0) || (strlen(str_b) == 0)) {
+    fprintf(stderr, "Invalid number of arguments. 3 arguments required. Please try again.\n");
+    return 1;
   }
-  if (out_b == NULL) {
-    fprintf(stderr, "Error: second number must be specified.\n");
-    exit(1);
+  else {
+    if (getCommand(str_cmd, cmd) != 0) {
+      fprintf(stderr, "Command '%s' is not a recognized command.\n", str_cmd);
+      return 1;
+    }
+    if (getDouble(str_a, a) != 0) {
+      fprintf(stderr, "Argument '%s' is not a recognized number format.\n", str_a);
+      return 1;
+    }
+    if (getDouble(str_b, b) != 0) {
+      fprintf(stderr, "Argument '%s' is not a recognized number format.\n", str_b);
+      return 1;
+    }
   }
-  *out_a = getDoubleOrDie(argv[2]);
-  *out_b = getDoubleOrDie(argv[3]);
+  return 0;
 }
 double multiply(double a, double b) {
   return a * b;

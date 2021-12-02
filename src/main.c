@@ -18,7 +18,11 @@ int main(int argc, char** argv) {
 }
 
 void runOpts(char* opt) {
-  Command cmd = getCommand(opt);
+  Command cmd;
+  if (!getCommand(opt, &cmd)) {
+    printf("Invalid Switch %s\n", opt);
+    exit(1);
+  }
 
   if (cmd == CMD_TEST) {
     printf("Run tests.");
@@ -31,9 +35,5 @@ void runOpts(char* opt) {
     printf("Opts:\n");
     printf("  -t: Run tests.\n");
     printf("  -h: Show help.\n");
-  }
-  else {
-    printf("Invalid Switch %s\n", argv[1]);
-    exit(1);
   }
 }

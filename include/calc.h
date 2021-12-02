@@ -8,13 +8,15 @@
 #include <stdlib.h>
 #include <string.h>
 #include <errno.h>
+#include <stdbool.h>
 
 typedef enum { CMD_HELP, CMD_TEST, CMD_MULTIPLY, CMD_DIVIDE, CMD_SUBTRACT, CMD_ADD, CMD_MODULUS, CMD_INVALID } Command;
 
 // Calc
 void calculate();
-Command getCommand(char*);
-void getValidNumbers(size_t argc, char** argv, double* out_a, double* out_b);
+int getCommand(char* arg, Command* out);
+int getDouble(char* c, double* out);
+int getLineAndParse(char* raw_buf, int raw_bufsiz, Command* cmd, double* a, double* b);
 double multiply(double a, double b);
 double divide(double a, double b);
 double add(double a, double b);
