@@ -19,19 +19,21 @@ int main(int argc, char** argv) {
 
 void runOpts(char* opt) {
   Command cmd;
-  if (!getCommand(opt, &cmd)) {
+  if (getCommand(opt, &cmd)!=0) {
     printf("Invalid Switch %s\n", opt);
     exit(1);
   }
 
   if (cmd == CMD_TEST) {
-    printf("Run tests.");
+    printf("Running tests.\n");
     runTests();
   }
   else if (cmd == CMD_HELP) {
     printf("calc: Simple Calculator Program.\n");
     printf("Usage:\n");
-    printf("  calc [opts] num1 num2:\n");
+    printf("  calc\n");
+    printf("  calc -t\n");
+    printf("  calc -h\n");
     printf("Opts:\n");
     printf("  -t: Run tests.\n");
     printf("  -h: Show help.\n");

@@ -8,10 +8,10 @@ void calculate() {
     printf("\n");
     printf("Please specify a command and 2 numbers, separated by spaces:\n");
     printf("  add num1 num2\n");
-    printf("  multiply num1 num2\n");
-    printf("  divide num1 num2\n");
-    printf("  subtract num1 num2\n");
-    printf("  modulus num1 num2\n");
+    printf("  mul num1 num2\n");
+    printf("  div num1 num2\n");
+    printf("  sub num1 num2\n");
+    printf("  mod num1 num2\n");
     printf(">");
 
     double a = -1, b = -1, res = -1;
